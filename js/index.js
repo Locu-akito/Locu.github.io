@@ -1,7 +1,6 @@
 import * as THREE from "./libs/ThreeJS-Librarys/build/three.module.js";
+import { TextGeometry } from "./libs/ThreeJS-Librarys/geometries/TextGeometry.js";
 import { FontLoader } from "./libs/ThreeJS-Librarys/loaders/FontLoader.js";
-//import { TextGeometry } from "./libs/ThreeJS-Librarys/geometries/TextGeometry.js";
-
 
  const { Player } = TextAliveApp;
 
@@ -29,6 +28,7 @@ import { FontLoader } from "./libs/ThreeJS-Librarys/loaders/FontLoader.js";
  let b, c;
  var lyricCount = 0, testCount = 0;
 let LyricOldList = "";
+let LyricNow = "";
  
  
  player.addListener({
@@ -155,6 +155,7 @@ let LyricOldList = "";
      } else {
        player.requestPlay();
      }
+     
    }
    return false;
  });
@@ -168,6 +169,7 @@ let LyricOldList = "";
      // 再生を停止したら画面表示をリセットする
      bar.className = "";
      resetChars();
+     LyricOldList = "";
    }
    return false;
  });
@@ -256,7 +258,7 @@ let LyricOldList = "";
    }
    LyricOldDiv.textContent = LyricOldList;
 
-
+   LyricNow = current.text;
  }
  
  /**
@@ -289,20 +291,43 @@ var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 var cube = new THREE.Mesh( geometry, material );
 scene.add( cube );
 
-/*テキストオブジェクト作成*/
+/*jsonフォントをロード*/
 const loader = new FontLoader();
 const font = loader.load(
 
   //フォントURL
-  "./js/Fonts/03SmartFontUI_Regular.js",
+  "./js/Fonts/03SmartFontUI_Regular.json",
 
   //処理記述
   function(font){
-    console.log(font);
+    
+    //テキストジオメトリー定義
+    const textGeometry = new TextGeometry( 
+      LyricOldList,
+      {
+        font: font,
+        size: 0.5,
+        height: 0.2,
+        curveSegments: 12,
+        bevelEnabled: true,
+        bevelThickness: 0.01,
+        bevelSize: 0.02,
+        bevelOffset: 0,
+        bevelSegments: 5
+      }
+    );
+    textGeometry.center();
+
+    //テキストジオメトリーのマテリアル
+    const textMaterial = new THREE.MeshNormalMaterial();
+
+    //メッシュ
+    const text = new THREE.Mesh(textGeometry, textMaterial);
+    scene.add(text);
   },
 
   
-)
+);
 /* camera(カメラ)の位置設定　*/
 camera.position.z = 5;
 
